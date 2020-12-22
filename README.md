@@ -1,4 +1,6 @@
-<img align="center" src="./docs/logo-original.png>
+<p align="center">
+<img src="docs/icon-original.png" width="200" height="200">
+</p>
 
 # FMBlocker
 
