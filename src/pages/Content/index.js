@@ -2,17 +2,11 @@ const $ = selector => document.querySelector(selector);
 const $$ = selector => document.querySelectorAll(selector);
 let removedPages = 0;
 
-const syncStorage = chrome.storage.sync;
+chrome.storage.sync.get(['fmblocker_blocklist'], fmblocklistParent => {
 
-syncStorage.get(['fmblocker_blocklist'], fmblocklist => {
+	console.log(fmblocklistParent);
+	const fmblocklist = fmblocklistParent.fmblocker_blocklist;
 	$$('.fm_best_widget > ul > li').forEach(posts => {
-
-		console.log('DEBUG Point')
-
-		fmblocklist = {
-			유머: "*",
-			미스터리: ['우주/과학']
-		}
 
 		const galleryName = posts.querySelector('.category').textContent.trim();
 		const [galleryParent, galleryChild] = galleryName.split('-').map(e => e.trim());
@@ -45,13 +39,50 @@ syncStorage.get(['fmblocker_blocklist'], fmblocklist => {
 
 	$$('.fmblocker-button').forEach(button => {
 		button.addEventListener('click', () => {
-			const isParent = button.target.getAttribute('data-relation').trim() === 'parent';
-			const blockingGallery = button.target.getAttribute('data-blocking').trim();
+			const isParent = button.getAttribute('data-relation').trim() === 'parent';
+			const blockingGallery = button.getAttribute('data-blocking').trim();
+			const blockGalleryParent = isParent ? null : button.getAttribute('data-blocking-parent');
 
 			if(isParent){
-				syncStorage.get(['fmblocker_blocklist'], result => {
-					syncStorage.set({
+				chrome.storage.sync.get(['fmblocker_blocklist'], result => {
 
+					const temp = {
+						...(result.fmblocker_blocklist),
+						[blockingGallery]: "*"
+					};
+
+					console.log(temp)
+
+					chrome.storage.sync.set({fmblocker_blocklist: {
+						...(result.fmblocker_blocklist),
+						[blockingGallery]: "*"
+					}}, () => {
+						alert(`${blockingGallery} 갤러리의 모든 포스트를 블라인드 처리하셨습니다.`)
+					})
+				})
+			}else{
+				chrome.storage.sync.get(['fmblocker_blocklist'], result => {
+
+					const prevBlockGalleryParent = result['fmblocker_blocklist'][blockGalleryParent] ?? []
+
+					const temp = {
+						...(result.fmblocker_blocklist),
+						[blockGalleryParent]: [
+							...prevBlockGalleryParent,
+							blockingGallery
+						]
+					};
+
+					console.log(temp);
+
+					chrome.storage.sync.set({fmblocker_blocklist: {
+						...(result.fmblocker_blocklist),
+						[blockGalleryParent]: [
+							...prevBlockGalleryParent,
+							blockingGallery
+						]
+					}}, () => {
+						alert(`${blockGalleryParent} - ${blockingGallery} 갤러리의 포스트를 블라인드 처리하셨습니다.`)
 					})
 				})
 			}

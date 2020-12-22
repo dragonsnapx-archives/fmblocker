@@ -36,7 +36,7 @@ if (fileSystem.existsSync(secretsPath)) {
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    options: path.join(__dirname, 'src', 'pages', 'Options', 'index.tsx'),
+    options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.js'),
   },
@@ -52,7 +52,7 @@ var options = {
     rules: [
       {
         // look for .css or .scss files
-        test: /\.(css|scss)$/,
+        test: /\.(css)$/,
         // in the `src` directory
         use: [
           {
@@ -60,13 +60,7 @@ var options = {
           },
           {
             loader: 'css-loader',
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true,
-            },
-          },
+          }
         ],
       },
       {
